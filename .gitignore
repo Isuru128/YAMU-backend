@@ -39,4 +39,4 @@ build/
 .DS_Store
 
 ### Environment ###
-account-service/.env
+**/.env

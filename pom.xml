@@ -18,6 +18,9 @@
   <url>https://maven.apache.org</url>
   <modules>
     <module>account-service</module>
+      <module>driver-and-vehicle-service</module>
+    <module>ride-management-service</module>
+    <module>payment-service</module>
   </modules>
 
   <build>
