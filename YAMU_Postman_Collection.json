@@ -1,0 +1,453 @@
+{
+  "info": {
+    "_postman_id": "9a12c8b7-6e42-4f31-897e-128f73b640a1",
+    "name": "YAMU Backend Microservices API Collection",
+    "description": "Comprehensive Postman test collection for YAMU ride management backend microservices. Covers all 7 required workflows and negative scenarios with automated token/ID capture.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "account_url", "value": "http://localhost:8080" },
+    { "key": "driver_url", "value": "http://localhost:8081" },
+    { "key": "ride_url", "value": "http://localhost:8082" },
+    { "key": "payment_url", "value": "http://localhost:8083" },
+    { "key": "passenger_token", "value": "" },
+    { "key": "passenger_id", "value": "" },
+    { "key": "driver_token", "value": "" },
+    { "key": "driver_user_id", "value": "" },
+    { "key": "driver_id", "value": "" },
+    { "key": "admin_token", "value": "" },
+    { "key": "ride_id", "value": "" },
+    { "key": "payment_id", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "1. Account & Access (Workflow 1)",
+      "item": [
+        {
+          "name": "1.1 Register Passenger Account",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201 or 200', function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });",
+                  "var json = pm.response.json();",
+                  "if (json.token) { pm.collectionVariables.set('passenger_token', json.token); }",
+                  "if (json.account && json.account.id) { pm.collectionVariables.set('passenger_id', json.account.id); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Nimal\",\n  \"lastName\": \"Silva\",\n  \"email\": \"nimal.passenger@yamu.lk\",\n  \"password\": \"Pass@12345\",\n  \"phoneNumber\": \"0771234567\",\n  \"role\": \"PASSENGER\"\n}"
+            },
+            "url": "{{account_url}}/accounts/register"
+          }
+        },
+        {
+          "name": "1.2 Register Driver Account",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201 or 200', function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });",
+                  "var json = pm.response.json();",
+                  "if (json.token) { pm.collectionVariables.set('driver_token', json.token); }",
+                  "if (json.account && json.account.id) { pm.collectionVariables.set('driver_user_id', json.account.id); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Sunil\",\n  \"lastName\": \"Perera\",\n  \"email\": \"sunil.driver@yamu.lk\",\n  \"password\": \"Pass@12345\",\n  \"phoneNumber\": \"0719876543\",\n  \"role\": \"DRIVER\"\n}"
+            },
+            "url": "{{account_url}}/accounts/register"
+          }
+        },
+        {
+          "name": "1.3 Login as Driver",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                  "var json = pm.response.json();",
+                  "pm.collectionVariables.set('driver_token', json.token);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"sunil.driver@yamu.lk\",\n  \"password\": \"Pass@12345\"\n}"
+            },
+            "url": "{{account_url}}/accounts/login"
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Driver Preparation (Workflow 2)",
+      "item": [
+        {
+          "name": "2.1 Register Driver Operational Profile",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201 or 200', function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });",
+                  "var json = pm.response.json();",
+                  "if (json.id) { pm.collectionVariables.set('driver_id', json.id); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{driver_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{driver_user_id}}\",\n  \"licenseNumber\": \"B8899112\",\n  \"serviceArea\": \"Colombo\",\n  \"vehicle\": {\n    \"licensePlate\": \"WP-CAB-4455\",\n    \"make\": \"Toyota\",\n    \"model\": \"Prius\",\n    \"year\": 2021,\n    \"color\": \"White\",\n    \"vehicleType\": \"CAR\",\n    \"capacity\": 4\n  }\n}"
+            },
+            "url": "{{driver_url}}/api/v1/drivers"
+          }
+        },
+        {
+          "name": "2.2 Set Driver Availability to AVAILABLE",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{driver_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"availabilityStatus\": \"AVAILABLE\"\n}"
+            },
+            "url": "{{driver_url}}/api/v1/drivers/{{driver_id}}/availability"
+          }
+        },
+        {
+          "name": "2.3 Update Driver Simulated GPS Location",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{driver_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"latitude\": 6.9271,\n  \"longitude\": 79.8612,\n  \"address\": \"Kollupitiya, Colombo 03\"\n}"
+            },
+            "url": "{{driver_url}}/api/v1/drivers/{{driver_id}}/location"
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Fare Estimation (Workflow 3)",
+      "item": [
+        {
+          "name": "3.1 Request Fare Estimate (CAR)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"distanceKm\": 8.5,\n  \"durationMinutes\": 18.0,\n  \"vehicleType\": \"CAR\",\n  \"surgeMultiplier\": 1.0\n}"
+            },
+            "url": "{{payment_url}}/api/v1/fares/estimate"
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Ride Request & Assignment (Workflow 4)",
+      "item": [
+        {
+          "name": "4.1 Create Ride Request",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201', function () { pm.response.to.have.status(201); });",
+                  "var json = pm.response.json();",
+                  "pm.collectionVariables.set('ride_id', json.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{passenger_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pickupLocation\": {\n    \"address\": \"Galle Face Green, Colombo 01\",\n    \"latitude\": 6.9271,\n    \"longitude\": 79.8441,\n    \"city\": \"Colombo\"\n  },\n  \"destinationLocation\": {\n    \"address\": \"Bambalapitiya, Colombo 04\",\n    \"latitude\": 6.8920,\n    \"longitude\": 79.8550,\n    \"city\": \"Colombo\"\n  },\n  \"requestedVehicleType\": \"CAR\",\n  \"estimatedDistanceKm\": 5.0,\n  \"estimatedDurationMinutes\": 15.0\n}"
+            },
+            "url": "{{ride_url}}/api/v1/rides"
+          }
+        },
+        {
+          "name": "4.2 Query Available Drivers in Area",
+          "request": {
+            "method": "GET",
+            "url": "{{driver_url}}/api/v1/drivers/available?serviceArea=Colombo&vehicleType=CAR"
+          }
+        },
+        {
+          "name": "4.3 Assign Driver to Ride",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{passenger_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"driverId\": \"{{driver_id}}\"\n}"
+            },
+            "url": "{{ride_url}}/api/v1/rides/{{ride_id}}/assign"
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Ride Lifecycle Transitions (Workflow 5)",
+      "item": [
+        {
+          "name": "5.1 Driver Accepts Ride (ASSIGNED -> ACCEPTED)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{driver_token}}" }],
+            "url": "{{ride_url}}/api/v1/rides/{{ride_id}}/accept"
+          }
+        },
+        {
+          "name": "5.2 Driver Starts Trip (ACCEPTED -> IN_PROGRESS)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{driver_token}}" }],
+            "url": "{{ride_url}}/api/v1/rides/{{ride_id}}/start"
+          }
+        },
+        {
+          "name": "5.3 Driver Completes Trip (IN_PROGRESS -> COMPLETED)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{driver_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"actualDistanceKm\": 5.2,\n  \"actualDurationMinutes\": 16.0\n}"
+            },
+            "url": "{{ride_url}}/api/v1/rides/{{ride_id}}/complete"
+          }
+        },
+        {
+          "name": "5.4 View Ride Lifecycle Audit History",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{passenger_token}}" }],
+            "url": "{{ride_url}}/api/v1/rides/{{ride_id}}/history"
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Completion & Payment (Workflow 6)",
+      "item": [
+        {
+          "name": "6.1 Process Simulated Payment",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 or 201', function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });",
+                  "var json = pm.response.json();",
+                  "pm.collectionVariables.set('payment_id', json.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{passenger_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rideId\": \"{{ride_id}}\",\n  \"passengerId\": \"{{passenger_id}}\",\n  \"driverId\": \"{{driver_id}}\",\n  \"amount\": 800.00,\n  \"paymentMethod\": \"CARD\"\n}"
+            },
+            "url": "{{payment_url}}/api/v1/payments"
+          }
+        },
+        {
+          "name": "6.2 Retrieve Payment Record",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{passenger_token}}" }],
+            "url": "{{payment_url}}/api/v1/payments/{{payment_id}}"
+          }
+        },
+        {
+          "name": "6.3 Retrieve Digital Receipt",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{passenger_token}}" }],
+            "url": "{{payment_url}}/api/v1/payments/{{payment_id}}/receipt"
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Negative Scenarios (Workflow 7)",
+      "item": [
+        {
+          "name": "7.1 Duplicate Email Registration (Expect 409)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": ["pm.test('Status is 409 Conflict', function () { pm.response.to.have.status(409); });"],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Nimal\",\n  \"lastName\": \"Silva\",\n  \"email\": \"nimal.passenger@yamu.lk\",\n  \"password\": \"Pass@12345\",\n  \"phoneNumber\": \"0771234567\"\n}"
+            },
+            "url": "{{account_url}}/accounts/register"
+          }
+        },
+        {
+          "name": "7.2 Invalid Password Login (Expect 401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": ["pm.test('Status is 401 Unauthorized', function () { pm.response.to.have.status(401); });"],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"nimal.passenger@yamu.lk\",\n  \"password\": \"WrongSecret!\"\n}"
+            },
+            "url": "{{account_url}}/accounts/login"
+          }
+        },
+        {
+          "name": "7.3 Invalid State Transition - Cancel Completed Ride (Expect 400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": ["pm.test('Status is 400 Bad Request', function () { pm.response.to.have.status(400); });"],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{passenger_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cancellationReason\": \"Trip already ended\"\n}"
+            },
+            "url": "{{ride_url}}/api/v1/rides/{{ride_id}}/cancel"
+          }
+        },
+        {
+          "name": "7.4 Simulated Gateway Payment Failure (Expect 402)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": ["pm.test('Status is 402 Payment Required', function () { pm.response.to.have.status(402); });"],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{passenger_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rideId\": \"negative-ride-fail-001\",\n  \"passengerId\": \"{{passenger_id}}\",\n  \"driverId\": \"{{driver_id}}\",\n  \"amount\": 800.00,\n  \"paymentMethod\": \"CARD\",\n  \"simulateFailure\": true,\n  \"failureReason\": \"INSUFFICIENT_FUNDS\"\n}"
+            },
+            "url": "{{payment_url}}/api/v1/payments"
+          }
+        },
+        {
+          "name": "7.5 Duplicate Payment Idempotency Check (Expect 409)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": ["pm.test('Status is 409 Conflict', function () { pm.response.to.have.status(409); });"],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{passenger_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rideId\": \"{{ride_id}}\",\n  \"passengerId\": \"{{passenger_id}}\",\n  \"driverId\": \"{{driver_id}}\",\n  \"amount\": 800.00,\n  \"paymentMethod\": \"CARD\"\n}"
+            },
+            "url": "{{payment_url}}/api/v1/payments"
+          }
+        }
+      ]
+    }
+  ]
+}
