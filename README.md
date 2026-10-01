@@ -95,9 +95,9 @@ Each service is pre-configured with safe development defaults and supports envir
 
 | Variable | Description | Default Value |
 | :--- | :--- | :--- |
-| `JWT_SECRET` | 256-bit secret used for HMAC-SHA signing | `404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970` |
+| `JWT_SECRET` | 256-bit secret used for HMAC-SHA signing | `node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"` |
 | `JWT_EXPIRATION_MS`| JWT token validity in milliseconds | `86400000` (24 hours) |
-| `MONGODB_URI` | Base connection string for MongoDB | `mongodb://localhost:27017/<service_db>` |
+| `MONGODB_URI` | Base connection string for MongoDB | `mongodb+srv://<db_username>:<db_password>@account-db................` |
 
 ### Service-Specific Ports & Database Boundaries
 
