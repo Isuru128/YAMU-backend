@@ -6,6 +6,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lk.accountservice.model.Account;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -19,10 +20,11 @@ import java.util.Map;
 @Service
 public class JwtService {
 
-    @Value("${jwt.secret:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}")
+    @Value("${jwt.secret}")
     private String secret;
 
-    @Value("${jwt.expiration-ms:3600000}")
+    @Getter
+    @Value("${jwt.expiration-ms}")
     private long expirationMs;
 
     private SecretKey getSigningKey() {
@@ -85,9 +87,5 @@ public class JwtService {
         } catch (JwtException | IllegalArgumentException e) {
             return false;
         }
-    }
-
-    public long getExpirationMs() {
-        return expirationMs;
     }
 }
