@@ -1,0 +1,10 @@
+target/
+**/target/
+.git/
+.gitignore
+.idea/
+.vscode/
+*.md
+YAMU_Postman_Collection.json
+**/.env
+**/.env.example
