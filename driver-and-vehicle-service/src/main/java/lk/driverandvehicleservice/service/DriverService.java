@@ -3,6 +3,7 @@ package lk.driverandvehicleservice.service;
 import lk.driverandvehicleservice.dto.DriverResponse;
 import lk.driverandvehicleservice.dto.RegisterDriverRequest;
 import lk.driverandvehicleservice.dto.UpdateAvailabilityRequest;
+import lk.driverandvehicleservice.dto.UpdateLicenseRequest;
 import lk.driverandvehicleservice.dto.UpdateLocationRequest;
 import lk.driverandvehicleservice.dto.UpdateVehicleRequest;
 import lk.driverandvehicleservice.model.VehicleType;
@@ -18,6 +19,8 @@ public interface DriverService {
     DriverResponse getDriverByUserId(String userId);
 
     DriverResponse updateVehicle(String driverId, UpdateVehicleRequest request, String authenticatedUserId, boolean isAdmin);
+
+    DriverResponse updateLicense(String driverId, UpdateLicenseRequest request, String authenticatedUserId, boolean isAdmin);
 
     DriverResponse updateAvailability(String driverId, UpdateAvailabilityRequest request, String authenticatedUserId, boolean isAdmin);
 
