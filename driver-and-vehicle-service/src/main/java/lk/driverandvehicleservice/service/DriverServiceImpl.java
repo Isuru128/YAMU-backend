@@ -3,6 +3,7 @@ package lk.driverandvehicleservice.service;
 import lk.driverandvehicleservice.dto.DriverResponse;
 import lk.driverandvehicleservice.dto.RegisterDriverRequest;
 import lk.driverandvehicleservice.dto.UpdateAvailabilityRequest;
+import lk.driverandvehicleservice.dto.UpdateLicenseRequest;
 import lk.driverandvehicleservice.dto.UpdateLocationRequest;
 import lk.driverandvehicleservice.dto.UpdateVehicleRequest;
 import lk.driverandvehicleservice.exception.DriverAlreadyExistsException;
@@ -104,6 +105,28 @@ public class DriverServiceImpl implements DriverService {
         driver.setVehicle(vehicle);
         Driver updatedDriver = driverRepository.save(driver);
         log.info("Updated vehicle details for driverId: {}", driverId);
+        return DriverResponse.from(updatedDriver);
+    }
+
+    @Override
+    public DriverResponse updateLicense(String driverId, UpdateLicenseRequest request, String authenticatedUserId, boolean isAdmin) {
+        Driver driver = findDriverOrThrow(driverId);
+        verifyOwnership(driver, authenticatedUserId, isAdmin);
+
+        String trimmedLicense = request.getLicenseNumber().trim().toUpperCase();
+        if (!trimmedLicense.equalsIgnoreCase(driver.getLicenseNumber())
+                && driverRepository.existsByLicenseNumber(trimmedLicense)) {
+            throw new LicenseAlreadyRegisteredException("Driving license number is already registered: " + trimmedLicense);
+        }
+
+        driver.setLicenseNumber(trimmedLicense);
+        driver.setLicenseExpiryDate(request.getExpiryDate().trim());
+        driver.setLicenseFrontImageUrl(request.getFrontImageUrl().trim());
+        driver.setLicenseBackImageUrl(request.getBackImageUrl().trim());
+        driver.setLicenseVerified(true);
+
+        Driver updatedDriver = driverRepository.save(driver);
+        log.info("Verified driver license for driverId: {}", driverId);
         return DriverResponse.from(updatedDriver);
     }
 
