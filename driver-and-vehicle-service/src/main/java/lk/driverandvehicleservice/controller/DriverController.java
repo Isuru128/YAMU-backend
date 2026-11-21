@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lk.driverandvehicleservice.dto.DriverResponse;
 import lk.driverandvehicleservice.dto.RegisterDriverRequest;
 import lk.driverandvehicleservice.dto.UpdateAvailabilityRequest;
+import lk.driverandvehicleservice.dto.UpdateLicenseRequest;
 import lk.driverandvehicleservice.dto.UpdateLocationRequest;
 import lk.driverandvehicleservice.dto.UpdateVehicleRequest;
 import lk.driverandvehicleservice.model.VehicleType;
@@ -61,6 +62,17 @@ public class DriverController {
         String currentUserId = authentication != null ? authentication.getName() : null;
         boolean isAdmin = isAdmin(authentication);
         DriverResponse response = driverService.updateVehicle(driverId, request, currentUserId, isAdmin);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{driverId}/license")
+    @PreAuthorize("hasAnyRole('DRIVER', 'ADMIN')")
+    public ResponseEntity<DriverResponse> updateLicense(@PathVariable String driverId,
+                                                        @Valid @RequestBody UpdateLicenseRequest request,
+                                                        Authentication authentication) {
+        String currentUserId = authentication != null ? authentication.getName() : null;
+        boolean isAdmin = isAdmin(authentication);
+        DriverResponse response = driverService.updateLicense(driverId, request, currentUserId, isAdmin);
         return ResponseEntity.ok(response);
     }
 
