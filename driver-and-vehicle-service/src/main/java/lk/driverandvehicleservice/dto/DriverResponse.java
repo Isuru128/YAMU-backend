@@ -20,6 +20,10 @@ public class DriverResponse {
     private String id;
     private String userId;
     private String licenseNumber;
+    private String licenseExpiryDate;
+    private String licenseFrontImageUrl;
+    private String licenseBackImageUrl;
+    private Boolean licenseVerified;
     private AvailabilityStatus availabilityStatus;
     private String serviceArea;
     private Location currentLocation;
@@ -38,6 +42,10 @@ public class DriverResponse {
                 .id(driver.getId())
                 .userId(driver.getUserId())
                 .licenseNumber(driver.getLicenseNumber())
+                .licenseExpiryDate(driver.getLicenseExpiryDate())
+                .licenseFrontImageUrl(driver.getLicenseFrontImageUrl())
+                .licenseBackImageUrl(driver.getLicenseBackImageUrl())
+                .licenseVerified(driver.getLicenseVerified())
                 .availabilityStatus(driver.getAvailabilityStatus())
                 .serviceArea(driver.getServiceArea())
                 .currentLocation(driver.getCurrentLocation())
