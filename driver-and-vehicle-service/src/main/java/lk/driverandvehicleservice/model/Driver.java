@@ -29,6 +29,15 @@ public class Driver {
     @Indexed(unique = true)
     private String licenseNumber;
 
+    private String licenseExpiryDate;
+
+    private String licenseFrontImageUrl;
+
+    private String licenseBackImageUrl;
+
+    @Builder.Default
+    private Boolean licenseVerified = false;
+
     @Builder.Default
     private AvailabilityStatus availabilityStatus = AvailabilityStatus.OFFLINE;
 
