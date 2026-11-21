@@ -38,5 +38,11 @@ build/
 ### Mac OS ###
 .DS_Store
 
-### Environment ###
+### Environment (strictly block all .env files except .env.example) ###
+.env
+.env.*
+.env*.local
 **/.env
+**/.env.*
+!.env.example
+!**/.env.example
