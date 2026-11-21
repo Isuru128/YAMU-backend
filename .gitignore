@@ -38,7 +38,7 @@ build/
 ### Mac OS ###
 .DS_Store
 
-### Environment (strictly block all .env files except .env.example) ###
+### Environment & Secret Keys (strictly block all .env and secret files except .env.example) ###
 .env
 .env.*
 .env*.local
@@ -46,3 +46,16 @@ build/
 **/.env.*
 !.env.example
 !**/.env.example
+*.key
+*.pem
+*.p8
+*.p12
+*.jks
+*.keystore
+*.cer
+*.crt
+*.pfx
+*credentials*.json
+service-account*.json
+secrets.*
+*.secret
