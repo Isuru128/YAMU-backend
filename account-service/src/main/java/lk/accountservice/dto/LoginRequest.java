@@ -1,6 +1,5 @@
 package lk.accountservice.dto;
 
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,9 +12,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class LoginRequest {
 
-    @NotBlank(message = "Email is required")
-    @Email(message = "Email must be valid")
+    // Accepts either email address or Sri Lankan phone number
+    @NotBlank(message = "Email or phone number is required")
     private String email;
+
+    private String phoneNumber;
 
     @NotBlank(message = "Password is required")
     private String password;
