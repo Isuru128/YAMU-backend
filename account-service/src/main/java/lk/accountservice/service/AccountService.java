@@ -68,10 +68,22 @@ public class AccountService {
     }
 
     public AuthResponse login(LoginRequest request) {
-        String normalizedEmail = request.getEmail().trim().toLowerCase();
+        String rawIdentifier = request.getEmail() != null ? request.getEmail().trim() : "";
+        String normalizedEmail = rawIdentifier.toLowerCase();
 
         Account account = accountRepository.findByEmail(normalizedEmail)
-                .orElseThrow(() -> new InvalidCredentialsException("Invalid email or password"));
+                .or(() -> accountRepository.findByPhoneNumber(rawIdentifier))
+                .or(() -> accountRepository.findByPhoneNumber(rawIdentifier.replaceAll("\\s+", "")))
+                .or(() -> {
+                    String compact = rawIdentifier.replaceAll("\\s+", "");
+                    if (compact.startsWith("+94")) {
+                        return accountRepository.findByPhoneNumber("0" + compact.substring(3));
+                    } else if (compact.startsWith("0")) {
+                        return accountRepository.findByPhoneNumber("+94" + compact.substring(1));
+                    }
+                    return java.util.Optional.empty();
+                })
+                .orElseThrow(() -> new InvalidCredentialsException("Invalid email/phone or password"));
 
         if (!passwordEncoder.matches(request.getPassword(), account.getPasswordHash())) {
             throw new InvalidCredentialsException("Invalid email or password");
